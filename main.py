@@ -58,7 +58,7 @@ app = FastAPI()
 
 @app.post("/lessons/")
 async def create_lesson(lesson: Lesson):   
-    new_item = await db_manager.create_lesson(lesson.title, lesson.content)
+    new_item = await db_manager.create_lesson_llm(lesson.title, lesson.content)
     return new_item
 
 # Get all lessons

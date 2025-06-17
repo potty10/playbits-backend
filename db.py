@@ -7,67 +7,65 @@ from pydantic import BaseModel, EmailStr, Field
 
 from llm import get_flashcards as generate_flashcards
 
+# Models
+class LessonBase(BaseModel):
+    id: str
+    title: str
+    summary: str
+    content: str
+    date_created: str
 
 class FlashcardBase(BaseModel):
+    id: str
     lesson_id: str
     question: str
     answer: str
 
 class GamecardBase(BaseModel):
+    id: str
     lesson_id: str
     content: str
     pair_number: int
 
 class QuestionBase(BaseModel):
+    id: str
     lesson_id: str
     question: str
     options: List[str]
     answer: str
 
-# class LessonBase(BaseModel):
-#     title: str
-#     summary: Optional[str] = None
-#     content: str
-#     date_created: datetime = Field(default_factory=datetime.now(datetime.timezone.utc))
-#     flashcards: List[FlashcardBase]
-#     game_cards: List[GamecardBase]
-#     questions: List[QuestionBase]
 
+
+# Class
 class DBManager:
+    # Initialisation
     def __init__(self, uri: str, database_name: str):
         self.client = AsyncIOMotorClient(uri)
         self.db = self.client.get_database(database_name)
         self.lesson_collection = self.db.get_collection("lessons")
+        self.flashcards_collection = self.db.get_collection("flashcards")
+        self.gamecards_collection = self.db.get_collection("gamecards")
+        self.questions_collection = self.db.get_collection("questions")
 
-    async def create_item(self, item):
+
+    # CRUD operations for lessons
+    async def create_lesson(self, item):
         result = await self.lesson_collection.insert_one(item)
-        return await self.read_item(result.inserted_id)
-
-    async def read_item(self, item_id: ObjectId):
-        item = await self.lesson_collection.find_one({"_id": item_id})
-        if item:
-            item["id"] = str(item["_id"])
-            del item["_id"]
+        return await self.read_lesson_by_id(result.inserted_id)
+    
+    async def read_lesson_by_id(self, item_id: str):
+        item = await self.lesson_collection.find_one({"id": item_id})
         return item
-
-    async def read_items(self) -> list:
+    
+    async def read_all_lessons(self) -> list:
         items = []
         cursor = self.lesson_collection.find({})
         async for item in cursor:
-            item["id"] = str(item["_id"])
-            del item["_id"]
             items.append(item)
         return items
 
-    async def update_item(self, item_id: ObjectId, item):
-        await self.lesson_collection.update_one({"_id": item_id}, {"$set": item})
-        return await self.read_item(item_id)
-
-    async def delete_item(self, item_id: ObjectId) -> bool:
-        result = await self.lesson_collection.delete_one({"_id": item_id})
-        return result.deleted_count > 0
-
-    async def create_lesson(self, title, content, summary=None):
+    # TODO: Update this again
+    async def create_lesson_llm(self, title, content, summary=None):
         flashcards = generate_flashcards(content).questions
         new_item = {
             "title": title,
@@ -78,22 +76,62 @@ class DBManager:
             new_item["summary"] = summary
 
         result = await self.lesson_collection.insert_one(new_item)
-        return await self.read_item(result.inserted_id)
+        return await self.read_lesson_by_id(result.inserted_id)
     
-    async def read_lessons(self) -> list:
-        items = []
-        cursor = self.lesson_collection.find({})
-        async for item in cursor:
-            item["id"] = str(item["_id"])
-            del item["_id"]
-            items.append(item)
-        return items
+
+
+    # CRUD operations for flashcards
+    async def create_flashcard(self, data: FlashcardBase) -> FlashcardBase:
+        flashcard_dict = data.model_dump()
+        result = await self.flashcards_collection.insert_one(flashcard_dict)
+
+        flashcard_dict["id"] = str(result.inserted_id)
+        return FlashcardBase(**flashcard_dict)
+
+    async def read_flashcards_by_lesson_id(self, lesson_id: str) -> List[FlashcardBase]:
+        cursor = self.flashcards_collection.find({"lesson_id": lesson_id})
+        flashcard_results = []
+
+        async for document in cursor:
+            flashcard_results.append(FlashcardBase(**document))
+        
+        return flashcard_results
     
-    async def read_lesson(self, item_id: ObjectId):
-        item = await self.lesson_collection.find_one({"_id": item_id})
-        if item:
-            item["id"] = str(item["_id"])
-            del item["_id"]
-        return item
+
+    # CRUD operations for game cards
+    async def create_gamecard(self, data: GamecardBase) -> GamecardBase:
+        gamecard_dict = data.model_dump()
+        result = await self.gamecards_collection.insert_one(gamecard_dict)
+
+        gamecard_dict["id"] = str(result.inserted_id)
+        return GamecardBase(**gamecard_dict)
+
+    async def read_gamecards_by_lesson_id(self, lesson_id: str) -> List[GamecardBase]:
+        cursor = self.gamecards_collection.find({"lesson_id": lesson_id})
+        gamecard_results = []
+
+        async for document in cursor:
+            gamecard_results.append(GamecardBase(**document))
+        
+        return gamecard_results
+    
+
+    # CRUD operations for questions
+    async def create_question(self, data: QuestionBase) -> QuestionBase:
+        question_dict = data.model_dump()
+        result = await self.questions_collection.insert_one(question_dict)
+
+        question_dict["id"] = str(result.inserted_id)
+        return QuestionBase(**question_dict)
+
+    async def read_questions_by_lesson_id(self, lesson_id: str) -> List[QuestionBase]:
+        cursor = self.questions_collection.find({"lesson_id": lesson_id})
+        question_results = []
+
+        async for document in cursor:
+            question_results.append(QuestionBase(**document))
+        
+        return question_results
+    
     
 db_manager = DBManager(uri="mongodb://localhost:27017", database_name="db_local")
