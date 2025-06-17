@@ -1,14 +1,18 @@
 from langchain_core.pydantic_v1 import BaseModel, Field
 from langchain_openai import ChatOpenAI
 from langchain_core.prompts import ChatPromptTemplate
-from langchain_ollama import ChatOllama
 from typing import List
+import os
 # Instantiate the LLM model
+
+
+api_key = os.getenv("OPENAI_API_KEY")
 
 # model = ChatOllama(model="llama3.1")
 model = ChatOpenAI(
     model="gpt-4o",
     temperature=0,
+    api_key="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"
     # max_tokens=None,
     # timeout=None,
     # max_retries=2,

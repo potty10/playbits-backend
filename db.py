@@ -16,19 +16,16 @@ class LessonBase(BaseModel):
     date_created: str
 
 class FlashcardBase(BaseModel):
-    id: str
     lesson_id: str
     question: str
     answer: str
 
 class GamecardBase(BaseModel):
-    id: str
     lesson_id: str
     content: str
     pair_number: int
 
 class QuestionBase(BaseModel):
-    id: str
     lesson_id: str
     question: str
     options: List[str]
@@ -61,6 +58,8 @@ class DBManager:
         items = []
         cursor = self.lesson_collection.find({})
         async for item in cursor:
+            item["id"] = str(item["_id"]) 
+            del item["_id"]
             items.append(item)
         return items
 
@@ -93,6 +92,8 @@ class DBManager:
         flashcard_results = []
 
         async for document in cursor:
+            document["id"] = str(document["_id"])
+            del document["_id"]
             flashcard_results.append(FlashcardBase(**document))
         
         return flashcard_results
@@ -111,6 +112,8 @@ class DBManager:
         gamecard_results = []
 
         async for document in cursor:
+            document["id"] = str(document["_id"])
+            del document["_id"]
             gamecard_results.append(GamecardBase(**document))
         
         return gamecard_results
@@ -129,6 +132,8 @@ class DBManager:
         question_results = []
 
         async for document in cursor:
+            document["id"] = str(document["_id"])
+            del document["_id"]
             question_results.append(QuestionBase(**document))
         
         return question_results
