@@ -5,8 +5,18 @@ from langchain_ollama import ChatOllama
 from typing import List
 # Instantiate the LLM model
 
-model = ChatOllama(model="llama3.1")
-
+# model = ChatOllama(model="llama3.1")
+model = ChatOpenAI(
+    model="gpt-4o",
+    temperature=0,
+    # max_tokens=None,
+    # timeout=None,
+    # max_retries=2,
+    # api_key="...",  # if you prefer to pass api key in directly instaed of using env vars
+    # base_url="...",
+    # organization="...",
+    # other params...
+)
 class Trivia(BaseModel):
     question: str = Field(description="The trivia question")
     answer: str = Field(description="The correct answer to the trivia question")
