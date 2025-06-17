@@ -64,11 +64,35 @@ async def create_lesson(lesson: Lesson):
 # Get all lessons
 @app.get("/lessons/")
 async def read_lessons():
-    return await db_manager.read_lessons()
+    return await db_manager.read_all_lessons()
 
 @app.get("/lessons/{lesson_id}")
 async def read_lesson(lesson_id: str):
-    item = await db_manager.read_lesson(ObjectId(lesson_id))
+    item = await db_manager.read_lesson_by_id(lesson_id)
     if item is None:
         raise HTTPException(status_code=404, detail="Item not found")
+    return item
+
+
+@app.get("/flashcards/{lesson_id}")
+async def read_flashcards(lesson_id: str):
+    item = await db_manager.read_flashcards_by_lesson_id(lesson_id)
+    if item is None:
+        raise HTTPException(status_code=404, detail="Flashcards not found")
+    return item
+
+
+@app.get("/gamecards/{lesson_id}")
+async def read_gamecards(lesson_id: str):
+    item = await db_manager.read_gamecards_by_lesson_id(lesson_id)
+    if item is None:
+        raise HTTPException(status_code=404, detail="Gamecards not found")
+    return item
+
+
+@app.get("/questions/{lesson_id}")
+async def read_questions(lesson_id: str):
+    item = await db_manager.read_questions_by_lesson_id(lesson_id)
+    if item is None:
+        raise HTTPException(status_code=404, detail="Questions not found")
     return item
