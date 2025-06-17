@@ -1,8 +1,8 @@
 # Run locally
 
-## Install requirements
+## Install requirements (Need GPU to run ollama)
 ```
-pip install fastapi uvicorn motor
+pip install -r requirements.txt
 ```
 
 ## Run Qdrant
@@ -15,7 +15,7 @@ Access at this link: http://127.0.0.1:6333/dashboard
 
 ## Download Ollama and pull model
 ```
-ollama pull llama3.2:1b
+ollama pull llama3.1
 ```
 
 ## Run mongodb as container
