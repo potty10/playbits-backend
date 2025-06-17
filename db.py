@@ -68,11 +68,12 @@ class DBManager:
     
     async def read_all_lessons(self) -> list:
         items = []
-        cursor = self.lesson_collection.find({})
+        cursor = self.lessons_collection.find({})
         async for item in cursor:
             item["id"] = str(item["_id"]) 
             del item["_id"]
             items.append(item)
+        print(items)
         return items
 
     # TODO: Update this again
