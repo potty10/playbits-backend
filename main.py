@@ -1,10 +1,13 @@
 from bson import ObjectId
 from fastapi import FastAPI, HTTPException
+from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 from typing import Optional
 from uuid import UUID, uuid4
 from db import db_manager
 from typing import List
+from llm import generate_summary, generate_flashcards, generate_gamecards, generate_questions
+from datetime import datetime
 
 # import the .env file
 from dotenv import load_dotenv
@@ -23,11 +26,55 @@ class Lesson(BaseModel):
 app = FastAPI()
 
 
+class LessonRequest(BaseModel):
+    content: str
 
 @app.post("/lessons/")
-async def create_lesson(lesson: Lesson):   
-    new_item = await db_manager.create_lesson_llm(lesson.title, lesson.content)
-    return new_item
+async def create_lesson(request: LessonRequest):  
+    try:
+        # Step 1: Generate title summary
+        title, summary = await generate_summary(request.content)
+        
+
+        #  Step 2: Store title and summary
+        lesson_doc = {
+            "title": title,
+            "summary": summary,
+            "content": request.content,
+            "date_created": datetime.now().strftime("%d-%m-%Y")
+        }
+        lesson_inserted = await db_manager.create_lesson(lesson_doc)
+
+
+        # Step 3: Generate flash cards
+        lesson_id = lesson_inserted.id
+        flashcards = await generate_flashcards(request.content)
+        inserted_flashcard_ids = await db_manager.create_flashcards_for_lesson(lesson_id, flashcards)
+
+
+        # Step 4: Generate game cards
+        gamecards = await generate_gamecards(request.content)
+        inserted_gamecard_ids = await db_manager.create_gamecards_for_lesson(lesson_id, gamecards)
+
+
+        # Step 5: Generate questions
+        questions = await generate_questions(request.content)
+        inserted_question_ids = await db_manager.create_questions_for_lesson(lesson_id, questions)
+
+        return JSONResponse(
+            status_code=201,
+            content={
+                "message": "Lesson created successfully",
+                "lesson_id": lesson_id,
+                "flashcards_inserted": len(inserted_flashcard_ids),
+                "gamecards_inserted": len(inserted_gamecard_ids),
+                "questions_inserted": len(inserted_question_ids)
+            }
+        )
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
 
 # Get all lessons
 @app.get("/lessons/")
