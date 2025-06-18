@@ -76,7 +76,6 @@ class DBManager:
             item["id"] = str(item["_id"]) 
             del item["_id"]
             items.append(item)
-        print(items)
         return items
 
     # TODO: Update this again
@@ -228,7 +227,6 @@ class DBManager:
             del document["_id"]
             gamecard_results.append(GamecardBase(**document))
         
-        print(gamecard_results)
         return gamecard_results
     
 
