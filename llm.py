@@ -141,8 +141,12 @@ Context:
 {content}
 
 # Output Format
-Generate a structured output in JSON with a key "gamecards" that holds an array of gamecard objects. Cards that match form a pair, and should thus share a pair number. The
-cards should NOT be fill-in-the-blanks, but rather a match with the content that is written on the other card.
+Generate a structured output in JSON with a key "gamecards" that holds an array of gamecard objects. Cards that match form a pair, and should thus share a pair number.
+
+- One card that gives a **definition, description, or clue** (e.g., “The process by which plants make their own food using sunlight”)
+- One card that is the **corresponding word or concept** (e.g., “Photosynthesis”)
+
+Do not use fill-in-the-blank questions. Instead, generate clear and concise descriptions or clues that match with their related term or concept.
 
 Generate as many pairs as you can, up to a maximum of 8 pairs. Do not use content outside of the content provided to you. The content of game cards should be unique and not duplicate information, where
 each pair should aim to reinforce something different.
