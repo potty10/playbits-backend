@@ -2,6 +2,7 @@
 1. Git clone  [backend repository](https://github.com/potty10/playbits-backend) to your desired folder.
 ```
 git clone https://github.com/potty10/playbits-backend.git
+
 ```
 
 2. Install necessary Python dependencies.
