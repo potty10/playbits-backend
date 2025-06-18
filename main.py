@@ -8,6 +8,14 @@ from db import db_manager
 from typing import List
 from llm import generate_summary, generate_flashcards, generate_gamecards, generate_questions
 from datetime import datetime
+from fastapi.middleware.cors import CORSMiddleware
+
+
+
+
+
+
+
 
 # import the .env file
 from dotenv import load_dotenv
@@ -24,6 +32,17 @@ class Lesson(BaseModel):
     content: str
 
 app = FastAPI()
+
+
+# Add CORS
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 
 
 class LessonRequest(BaseModel):
