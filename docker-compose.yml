@@ -1,0 +1,20 @@
+version: '3.9'
+
+services:
+  web:
+    build: .
+    container_name: playbits_backend_app
+    ports:
+      - "8000:8000"
+    depends_on:
+      - mongo
+    env_file:
+      - .env
+    volumes:
+      - .:/app
+
+  mongo:
+    image: mongo:latest
+    container_name: mongodb_image
+    ports:
+      - "27017:27017"

@@ -6,6 +6,10 @@ from datetime import datetime
 from pydantic import BaseModel, EmailStr, Field
 
 from llm import get_flashcards as generate_flashcards
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
 
 # Models
 class LessonBase(BaseModel):
@@ -250,4 +254,9 @@ class DBManager:
         return question_results
 
 
-db_manager = DBManager(uri="mongodb://localhost:27017", database_name="db_local")
+
+
+MONGO_URI = os.getenv("MONGO_URI", "mongodb://localhost:27017")
+DATABASE_NAME = os.getenv("DATABASE_NAME", "db_local")
+
+db_manager = DBManager(uri=MONGO_URI, database_name=DATABASE_NAME)
