@@ -63,8 +63,9 @@ async def create_lesson(request: LessonRequest):
 
         return JSONResponse(
             status_code=201,
-            content={
+            content= {
                 "message": "Lesson created successfully",
+                "lesson_title": title,
                 "lesson_id": lesson_id,
                 "flashcards_inserted": len(inserted_flashcard_ids),
                 "gamecards_inserted": len(inserted_gamecard_ids),

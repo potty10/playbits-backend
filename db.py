@@ -16,16 +16,19 @@ class LessonBase(BaseModel):
     date_created: str
 
 class FlashcardBase(BaseModel):
+    id: Optional[str] = None
     lesson_id: str
     question: str
     answer: str
 
 class GamecardBase(BaseModel):
+    id: Optional[str] = None
     lesson_id: str
     content: str
     pair_number: int
 
 class QuestionBase(BaseModel):
+    id: Optional[str] = None
     lesson_id: str
     question: str
     options: List[str]
@@ -125,13 +128,22 @@ class DBManager:
             for gc in gamecards:
                 gamecards_to_insert.append({
                     "lesson_id": lesson_id,
-                    "content": gc["content"],  # or gc.get("front_content")
-                    "pair_number": int(gc["pair"])
+                    "content": gc["content"],
+                    "pair_number": int(gc["pair_number"])
                 })
-
+            
             result = await self.gamecards_collection.insert_many(gamecards_to_insert)
+
+            # Update each inserted document with "id" field as string of _id
+            for inserted_id in result.inserted_ids:
+                await self.gamecards_collection.update_one(
+                    {"_id": inserted_id},
+                    {"$set": {"id": str(inserted_id)}}
+                )
+
             return result.inserted_ids
         except Exception as e:
+            print("Error inserting gamecards:", e)
             return []
         
 
@@ -216,6 +228,7 @@ class DBManager:
             del document["_id"]
             gamecard_results.append(GamecardBase(**document))
         
+        print(gamecard_results)
         return gamecard_results
     
 

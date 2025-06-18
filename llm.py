@@ -31,6 +31,7 @@ class FlashcardOutput(BaseModel):
 summary_prompt = """
 ### Instructions
 Given the context, you intend to create a revision flow for it. Give a title for the revision flow and provide a 3-line summary of the content.
+For the summary, phrase it as if you are addressing a learner and summarising to the learner what can he learn from it.
 
 # Output Format
 Generate a structured output in the form of JSON with fields for a title and a summary based on the given input.
@@ -82,8 +83,8 @@ If you have not enough content, you can generate less than 6 flashcards.
 - The output should be a JSON object like this:
 {{
   "flashcards": [
-    {{ "front_content": "Your question here", "back_content": "Your answer here" }},
-    {{ "front_content": "Another question", "back_content": "Another answer" }}
+    {{ "question": "Your question here", "answer": "Your answer here" }},
+    {{ "question": "Another question", "answer": "Another answer" }}
   ]
 }}
 
@@ -140,7 +141,8 @@ Context:
 {content}
 
 # Output Format
-Generate a structured output in JSON with a key "gamecards" that holds an array of gamecard objects. Cards that match form a pair, and should thus share a pair number.
+Generate a structured output in JSON with a key "gamecards" that holds an array of gamecard objects. Cards that match form a pair, and should thus share a pair number. The
+cards should NOT be fill-in-the-blanks, but rather a match with the content that is written on the other card.
 
 Generate as many pairs as you can, up to a maximum of 8 pairs. Do not use content outside of the content provided to you. The content of game cards should be unique and not duplicate information, where
 each pair should aim to reinforce something different.
