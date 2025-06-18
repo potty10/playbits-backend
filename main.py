@@ -48,7 +48,7 @@ app.add_middleware(
 class LessonRequest(BaseModel):
     content: str
 
-@app.post("/lessons")
+@app.post("/createlesson")
 async def create_lesson(request: LessonRequest):  
     try:
         # Step 1: Generate title summary
